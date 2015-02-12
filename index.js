@@ -322,6 +322,18 @@ extendNode(HTMLElement, elementGetters, {
 		this[name] = ""
 		delete this[name]
 	},
+	hasAttributeNS: function(ns, name) {
+		return this.hasAttribute(name)
+	},
+	getAttributeNS: function(ns, name) {
+		return this.getAttribute(name)
+	},
+	setAttributeNS: function(ns, name, value) {
+		return this.setAttribute(name, value)
+	},
+	removeAttributeNS: function(ns, name) {
+		return this.removeAttribute(name)
+	},
 	toString: function() {
 		var attrs = this.attributes.join(" ")
 		return "<" + this.localName + (attrs ? " " + attrs : "") + ">" +
