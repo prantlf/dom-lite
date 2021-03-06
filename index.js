@@ -14,7 +14,6 @@ var voidElements = {
 	AREA:1, BASE:1, BR:1, COL:1, EMBED:1, HR:1, IMG:1, INPUT:1,
 	KEYGEN:1, LINK:1, MENUITEM:1, META:1, PARAM:1, SOURCE:1, TRACK:1, WBR:1
 }
-, hasOwn = voidElements.hasOwnProperty
 , selector = require("selector-lite")
 , elementGetters = {
 	getElementById: function(id) {
@@ -33,6 +32,31 @@ var voidElements = {
 		return selector.find(this, sel)
 	}
 }
+, elementAttrProps = [
+	{ name: "alt", defVal: "" },
+	{ name: "as", defVal: "" },
+	{ name: "autofocus", defVal: false },
+	{ name: "checked", defVal: false },
+	{ name: "class", propName: "className", defVal: "" },
+	{ name: "dir", defVal: "" },
+	{ name: "disabled", defVal: false },
+	{ name: "height", defVal: 0 },
+	{ name: "hidden", defVal: false },
+	{ name: "href", defVal: "" },
+	{ name: "for", propName: "htmlFor", defVal: "" },
+	{ name: "id", defVal: "" },
+	{ name: "lang", defVal: "" },
+	{ name: "name", defVal: "" },
+	{ name: "readonly", propName: "readOnly", defVal: false },
+	{ name: "rel", defVal: "" },
+	{ name: "required", defVal: false },
+	{ name: "src", defVal: "" },
+	{ name: "tabindex", propName: "tabIndex", defVal: -1 },
+	{ name: "title", defVal: "" },
+	{ name: "type", defVal: "" },
+	{ name: "value", defVal: "" },
+	{ name: "width", defVal: 0 }
+]
 , Node = {
 	ELEMENT_NODE:                1,
 	TEXT_NODE:                   3,
@@ -120,18 +144,6 @@ var voidElements = {
 		this.parentNode.replaceChild(frag, this)
 		return html
 	},
-	get htmlFor() {
-		return this["for"]
-	},
-	set htmlFor(value) {
-		this["for"] = value
-	},
-	get className() {
-		return this["class"] || ""
-	},
-	set className(value) {
-		this["class"] = value
-	},
 	get style() {
 		return this.styleMap || (this.styleMap = new StyleMap())
 	},
@@ -210,6 +222,23 @@ function extendNode(obj, extras) {
 	obj.prototype.constructor = obj
 }
 
+function addElementAttrProps(obj) {
+	elementAttrProps.forEach(function(prop) {
+		var attrName = prop.name
+		var defVal = prop.defVal
+		Object.defineProperty(obj.prototype, prop.propName || attrName, {
+			configurable: true,
+			enumerable: true,
+			get: function() {
+				return this.attrObj[attrName] || defVal
+			},
+			set: function(value) {
+				this.attrObj[attrName] = value
+			}
+		})
+	})
+}
+
 function camelCase(str) {
 	return str.replace(/[ _-]+([a-z])/g, function(_, a) { return a.toUpperCase() })
 }
@@ -273,9 +302,7 @@ Attr.prototype = {
 }
 
 function escapeAttributeName(name) {
-	name = name.toLowerCase()
-	if (name === "constructor" || name === "attributes") return name.toUpperCase()
-	return name
+	return name.toLowerCase()
 }
 
 function HTMLElement(tag) {
@@ -283,15 +310,15 @@ function HTMLElement(tag) {
 	element.nodeName = element.tagName = tag.toUpperCase()
 	element.localName = tag.toLowerCase()
 	element.childNodes = []
+	element.attrObj = {}
 }
 
 extendNode(HTMLElement, elementGetters, {
 	get attributes() {
 		var key
 		, attrs = []
-		, element = this
-		for (key in element) if (key === escapeAttributeName(key) && element.hasAttribute(key))
-			attrs.push(new Attr(element, escapeAttributeName(key)))
+		for (key in this.attrObj) attrs.push(new Attr(this, key))
+		if (this.hasAttribute("style")) attrs.push(new Attr(this, "style"))
 		return attrs
 	},
 	matches: function(sel) {
@@ -307,20 +334,25 @@ extendNode(HTMLElement, elementGetters, {
 	styleMap: null,
 	hasAttribute: function(name) {
 		name = escapeAttributeName(name)
-		return name != "style" ? hasOwn.call(this, name) :
+		return name != "style" ? name in this.attrObj :
 		!!(this.styleMap && Object.keys(this.styleMap).length)
 	},
 	getAttribute: function(name) {
 		name = escapeAttributeName(name)
-		return this.hasAttribute(name) ? "" + this[name] : null
+		if (name === "style") return "" + this.style
+		return this.hasAttribute(name) ? "" + this.attrObj[name] : null
 	},
 	setAttribute: function(name, value) {
-		this[escapeAttributeName(name)] = "" + value
+		if (name === "style") this.style = "" + value
+		else this.attrObj[escapeAttributeName(name)] = "" + value
 	},
 	removeAttribute: function(name) {
-		name = escapeAttributeName(name)
-		this[name] = ""
-		delete this[name]
+		if (name === "style") {
+			this.style = ""
+		} else {
+			name = escapeAttributeName(name)
+			delete this.attrObj[name]
+		}
 	},
 	toString: function() {
 		var attrs = this.attributes.join(" ")
@@ -329,11 +361,14 @@ extendNode(HTMLElement, elementGetters, {
 	}
 })
 
+addElementAttrProps(HTMLElement)
+
 function ElementNS(namespace, tag) {
 	var element = this
 	element.namespaceURI = namespace
 	element.nodeName = element.tagName = element.localName = tag
 	element.childNodes = []
+	element.attrObj = {}
 }
 
 ElementNS.prototype = HTMLElement.prototype
