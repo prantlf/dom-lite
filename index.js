@@ -15,6 +15,8 @@ var voidElements = {
 	KEYGEN:1, LINK:1, MENUITEM:1, META:1, PARAM:1, SOURCE:1, TRACK:1, WBR:1
 }
 , hasOwn = voidElements.hasOwnProperty
+, splice = Array.prototype.splice
+, push = Array.prototype.push
 , selector = require("selector-lite")
 , elementGetters = {
 	getElementById: function(id) {
@@ -127,10 +129,10 @@ var voidElements = {
 		this["for"] = value
 	},
 	get className() {
-		return this["class"] || ""
+		return this.classList.value
 	},
 	set className(value) {
-		this["class"] = value
+		this.classList.set(value)
 	},
 	get style() {
 		return this.styleMap || (this.styleMap = new StyleMap())
@@ -248,6 +250,58 @@ function getSibling(node, step) {
 	return silbings && index > -1 && silbings[ index + step ] || null
 }
 
+function ClassList() {}
+
+ClassList.prototype = Object.create(Array.prototype)
+
+Object.assign(ClassList.prototype, {
+	constructor: ClassList,
+	set: function (value) {
+		splice.apply(this, [0, this.length].concat((value || "").match(/\S+/g) || []))
+	},
+	item: function (index) {
+		return this[index]
+	},
+	contains: Array.prototype.includes,
+	add: function () {
+		push.apply(this, arguments)
+	},
+	remove: function () {
+		for (var i = 0, l = arguments.length; i < l; ++i) {
+			var index = this.indexOf(arguments[i])
+			if (index >= 0) this.splice(index, 1)
+		}
+	},
+	toggle: function (className, force) {
+		var index = this.indexOf(className)
+		if (index >= 0) {
+			if (force !== true) {
+				this.splice(index, 1)
+				return false
+			} else {
+				return true
+			}
+		} else {
+			if (force !== false) {
+				this.push(className)
+				return true
+			} else {
+				return false
+			}
+		}
+	},
+	toString: function () {
+		return this.value
+	}
+})
+
+Object.defineProperty(ClassList.prototype, "value", {
+	enumerable: true,
+	get: function () {
+		return this.join(" ")
+	}
+})
+
 
 
 function DocumentFragment() {
@@ -282,6 +336,7 @@ function HTMLElement(tag) {
 	var element = this
 	element.nodeName = element.tagName = tag.toUpperCase()
 	element.localName = tag.toLowerCase()
+	element.classList = new ClassList()
 	element.childNodes = []
 }
 
@@ -292,6 +347,7 @@ extendNode(HTMLElement, elementGetters, {
 		, element = this
 		for (key in element) if (key === escapeAttributeName(key) && element.hasAttribute(key))
 			attrs.push(new Attr(element, escapeAttributeName(key)))
+		if (element.hasAttribute("class")) attrs.push(new Attr(element, "class"))
 		return attrs
 	},
 	matches: function(sel) {
@@ -307,19 +363,21 @@ extendNode(HTMLElement, elementGetters, {
 	styleMap: null,
 	hasAttribute: function(name) {
 		name = escapeAttributeName(name)
-		return name != "style" ? hasOwn.call(this, name) :
-		!!(this.styleMap && Object.keys(this.styleMap).length)
+		return name !== "style" ? name !== "class" ? hasOwn.call(this, name)
+			: !!this.classList.length
+			: !!(this.styleMap && Object.keys(this.styleMap).length)
 	},
 	getAttribute: function(name) {
 		name = escapeAttributeName(name)
-		return this.hasAttribute(name) ? "" + this[name] : null
+		return this.hasAttribute(name) ? "" + this[name !== "class" ? name : "className"] : null
 	},
 	setAttribute: function(name, value) {
-		this[escapeAttributeName(name)] = "" + value
+		name = escapeAttributeName(name)
+		this[name !== "class" ? name : "className"] = "" + value
 	},
 	removeAttribute: function(name) {
 		name = escapeAttributeName(name)
-		this[name] = ""
+		this[name !== "class" ? name : "className"] = ""
 		delete this[name]
 	},
 	toString: function() {
@@ -333,6 +391,7 @@ function ElementNS(namespace, tag) {
 	var element = this
 	element.namespaceURI = namespace
 	element.nodeName = element.tagName = element.localName = tag
+	element.classList = new ClassList()
 	element.childNodes = []
 }
 

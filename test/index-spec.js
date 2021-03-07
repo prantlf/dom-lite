@@ -125,6 +125,45 @@ describe("DOM lite", function() {
 		assert.end()
 	})
 
+	it("supports class list", function (assert) {
+		var el = document.createElement("div")
+
+		assert.equal(el.hasAttribute("class"), false)
+		assert.equal(el.hasAttribute("Class"), false)
+		assert.equal(el.getAttribute("class"), null)
+		assert.equal(el.classList.length, 0)
+		assert.equal(el.classList.value, "")
+
+		el.className = " c1 c2 "
+		assert.equal(el.hasAttribute("class"), true)
+		assert.equal(el.hasAttribute("Class"), true)
+		assert.equal(el.getAttribute("class"), "c1 c2")
+		assert.equal(el.classList.length, 2)
+		assert.equal(el.classList.value, "c1 c2")
+		assert.equal(el.classList.item(0), "c1")
+		assert.equal(el.classList.item(1), "c2")
+
+		el.classList.remove("c2")
+		assert.ok(!el.classList.contains("c2"))
+		el.classList.add("c2")
+		assert.ok(el.classList.contains("c2"))
+
+		assert.equal(el.classList.toggle("c2"), false)
+		assert.ok(!el.classList.contains("c2"))
+		assert.equal(el.classList.toggle("c2"), true)
+		assert.ok(el.classList.contains("c2"))
+		assert.equal(el.classList.toggle("c2", true), true)
+		assert.ok(el.classList.contains("c2"))
+		assert.equal(el.classList.toggle("c2", false), false)
+		assert.ok(!el.classList.contains("c2"))
+		el.classList.remove("c2")
+		assert.equal(el.classList.toggle("c2", false), false)
+		assert.ok(!el.classList.contains("c2"))
+		assert.equal(el.classList.toString(), "c1")
+
+		assert.end()
+	})
+
 	it("can clone HTMLElements", function (assert) {
 		var el, clone, deepClone
 
@@ -287,13 +326,14 @@ describe("DOM lite", function() {
 
 		h1.style.top = "5px"
 		h1.style.left = "15px"
-		assert.equal(""+h1, '<h1 id="123" class="my-class" style="top: 5px; left: 15px"></h1>')
+		assert.equal(""+h1, '<h1 id="123" style="top: 5px; left: 15px" class="my-class"></h1>')
 		assert.equal(h1.attributes.length, 3)
-		assert.equal(h1.attributes[2].name, "style")
-		assert.equal(h1.attributes[2].value, "top: 5px; left: 15px")
+		assert.equal(h1.attributes[1].name, "style")
+		assert.equal(h1.attributes[1].value, "top: 5px; left: 15px")
 
 		h1.attributes[2].value = "top: 15px;"
-		assert.equal(h1.attributes[2].value, "top: 15px")
+		assert.equal(h1.attributes[2].value, "top: 15px;")
+		h1.setAttribute("style", "top") // test coverage for a sanity check
 
 		h1.removeAttribute('style')
 		h1.removeAttribute('class')
