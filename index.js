@@ -196,6 +196,150 @@ var voidElements = {
 		}, "") : ""
 	}
 }
+, EventTarget = {
+	// Event listeners are stored in arrays organised by their types in an object.
+	// el.eventListeners = {
+	//   click: [
+	//       { target, handler, useCapture }
+	//       { target, handler, useCapture }
+	//       ...
+	//     ]
+	//   ...
+	// }
+	dispatchEvent: function(event) {
+		event.target = this
+
+		var path = event.composedPath()
+		path.shift() // the event on the target node will lbe triggered explicitly
+
+		var reversePath = path.reverse()
+		event.eventPhase = Event.CAPTURING_PHASE
+		for (var i = 0, l = reversePath.length; i < l; ++i) {
+			if (callEventHandlers(reversePath[i], event, true)) return result()
+		}
+
+		event.eventPhase = Event.AT_TARGET
+		if (callEventHandlers(this, event)) return result()
+
+		if (event.bubbles) {
+			event.eventPhase = Event.BUBBLING_PHASE
+			for (i = 0, l = path.length; i < l; ++i) {
+				if (callEventHandlers(path[i], event, false)) return result()
+			}
+		}
+
+		return result()
+
+		function result() {
+			return !(event.cancelable && event.defaultPrevented)
+		}
+	},
+	addEventListener: function(type, handler, useCapture) {
+		var event = normalizeEvent(type, useCapture)
+		var eventListeners = getEventListeners(this, event.type)
+		var eventListener = {
+			target: this,
+			handler: handler,
+			useCapture: event.useCapture
+		}
+		eventListeners.push(eventListener)
+	},
+	removeEventListener: function(type, handler, useCapture) {
+		var event = normalizeEvent(type, useCapture)
+		var eventListeners = getEventListeners(this, event.type)
+		var index = eventListeners.findIndex(function(listener) {
+			return handler === listener.handler && event.useCapture === listener.useCapture
+		})
+		if (index >= 0) eventListeners.splice(index, 1)
+	}
+}
+
+
+
+function now() {
+	var time = process.hrtime()
+	return time[0] * 1e3 + time[1] / 1e6
+}
+
+ // calls event handlers registered for the specific event on the specified
+// element and returns true if the bubbling was cancelled by a handler
+function callEventHandlers(el, event, useCapture) {
+	var eventListeners = getEventListeners(el, event.type)
+	for (var i = 0, l = eventListeners.length; i < l; ++i) {
+		var eventListener = eventListeners[i]
+		// call the handler if it is the target or if useCapture matches
+		if (useCapture === undefined || useCapture === eventListener.useCapture) {
+			event.currentTarget = el
+			eventListener.handler(event)
+			if (event.cancelImmediate) return true
+		}
+	}
+	if (event.cancelBubble) return true
+}
+
+// ensures a lower-case event type and a boolean useCapture
+function normalizeEvent(type, useCapture) {
+	type = type.toLowerCase()
+	useCapture = useCapture || false
+	var event = { type: type, useCapture: useCapture }
+	return event
+}
+
+// gets an array of event listeners for the specified event type
+function getEventListeners(el, type) {
+	var allListeners = el.eventListeners || (el.eventListeners = {})
+	return allListeners[type] || (allListeners[type] = [])
+}
+
+function Event(type, options) {
+	if (!type) throw new TypeError("type not specified")
+	this.type = type.toLowerCase()
+	this.timeStamp = now()
+	Object.assign(this, options)
+}
+
+Object.assign(Event, {
+	NONE: 0,
+	CAPTURING_PHASE: 1,
+	AT_TARGET: 2,
+	BUBBLING_PHASE: 3
+})
+
+Object.assign(Event.prototype, {
+	isTrusted: false,
+	bubbles: false,
+	cancelable: false,
+	composed: false,
+	defaultPrevented: false,
+	cancelBubble: false,
+	cancelImmediate: false,
+	eventPhase: Event.NONE,
+	preventDefault: function() {
+		this.defaultPrevented = true
+	},
+	stopPropagation: function() {
+		this.cancelBubble = true
+	},
+	stopImmediatePropagation: function() {
+		this.cancelImmediate = true
+	},
+	composedPath: function() {
+		var el = this.target
+		var path = [el]
+		while ((el = el.parentNode)) {
+			var shadowRoot = el.shadowRoot
+			if (shadowRoot) {
+				// if the event is not composed and an ancestor of the target element
+				// has a shadow dom, cut the path to start with the custom element
+				if (!this.composed || shadowRoot.mode === "closed") path = [el]
+				else path.push(shadowRoot, el)
+			} else {
+				path.push(el)
+			}
+		}
+		return path
+	}
+})
 
 
 
@@ -285,7 +429,7 @@ function HTMLElement(tag) {
 	element.childNodes = []
 }
 
-extendNode(HTMLElement, elementGetters, {
+extendNode(HTMLElement, elementGetters, EventTarget, {
 	get attributes() {
 		var key
 		, attrs = []
@@ -394,7 +538,7 @@ function own(Element) {
 	}
 }
 
-extendNode(Document, elementGetters, {
+extendNode(Document, elementGetters, EventTarget, {
 	nodeType: 9,
 	nodeName: "#document",
 	createElement: own(HTMLElement),
@@ -411,6 +555,7 @@ module.exports = {
 	Node: Node,
 	HTMLElement: HTMLElement,
 	DocumentFragment: DocumentFragment,
-	Document: Document
+	Document: Document,
+	Event: Event
 }
 
