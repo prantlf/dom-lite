@@ -317,6 +317,9 @@ extendNode(HTMLElement, elementGetters, {
 	setAttribute: function(name, value) {
 		this[escapeAttributeName(name)] = "" + value
 	},
+	setAttributeNS: function (namespace, name, value) {
+		this.setAttribute(name, value)
+	},
 	removeAttribute: function(name) {
 		name = escapeAttributeName(name)
 		this[name] = ""
