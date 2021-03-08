@@ -209,6 +209,11 @@ var voidElements = {
 		}
 		return clone
 	},
+	attachShadow: function(opts) {
+		var shadowRoot = this.shadowRoot = new ShadowRoot(opts)
+		shadowRoot.ownerDocument = this.ownerDocument
+		return shadowRoot
+	},
 	toString: function() {
 		return this.hasChildNodes() ? this.childNodes.reduce(function(memo, node) {
 			return memo + node
@@ -494,6 +499,17 @@ extendNode(DocumentFragment, {
 	nodeName: "#document-fragment"
 })
 
+function ShadowRoot(opts) {
+	this.mode = opts.mode
+	this.delegatesFocus = !!opts.delegatesFocus
+	this.childNodes = []
+}
+
+extendNode(ShadowRoot, {
+	nodeType: 11,
+	nodeName: "#shadow-root"
+})
+
 function Attr(node, name) {
 	this.ownerElement = node
 	this.name = name.toLowerCase()
@@ -570,8 +586,15 @@ extendNode(HTMLElement, elementGetters, EventTarget, {
 	},
 	toString: function() {
 		var attrs = this.attributes.join(" ")
-		return "<" + this.localName + (attrs ? " " + attrs : "") + ">" +
-		(voidElements[this.tagName] ? "" : this.innerHTML + "</" + this.localName + ">")
+		var prefix = "<" + this.localName + (attrs ? " " + attrs : "") + ">"
+		if (this.shadowRoot) {
+			// <my-element my-attr=val>
+			//	 <#shadow-root> ...shadow dom content </#shadow-root>
+			//	 ...light dom content
+			// </my-element>
+			prefix += "<#shadow-root>" + this.shadowRoot.outerHTML + "</#shadow-root>"
+		}
+		return prefix + (voidElements[this.tagName] ? "" : this.innerHTML + "</" + this.localName + ">")
 	}
 })
 
@@ -679,6 +702,7 @@ module.exports = {
 	HTMLElement: HTMLElement,
 	HTMLTemplateElement: HTMLTemplateElement,
 	DocumentFragment: DocumentFragment,
+	ShadowRoot: ShadowRoot,
 	Document: Document,
 	Event: Event
 }

@@ -378,6 +378,19 @@ describe("DOM lite", function() {
 
 		assert.end()
 	})
+
+	it("has Shadow DOM", function (assert) {
+		var div = document.createElement("div")
+		var shadow = div.attachShadow({ mode: "open" })
+
+		assert.equal(shadow, div.shadowRoot)
+		assert.equal("" + div, "<div><#shadow-root></#shadow-root></div>")
+
+		shadow.appendChild(document.createElement("hr"))
+		assert.equal("" + div, "<div><#shadow-root><hr></#shadow-root></div>")
+
+		assert.end()
+	})
 })
 
 
