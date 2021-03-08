@@ -556,6 +556,9 @@ extendNode(HTMLElement, elementGetters, EventTarget, {
 		else if (name === "class") this.className = "" + value
 		else this.attrObj[name] = "" + value
 	},
+	setAttributeNS: function (namespace, name, value) {
+		this.setAttribute(name, value)
+	},
 	removeAttribute: function(name) {
 		name = escapeAttributeName(name)
 		if (name === "style") this.style = ""
