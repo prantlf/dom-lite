@@ -158,6 +158,10 @@ var voidElements = {
 			childs.splice(ref ? childs.indexOf(ref) : childs.length, 0, el)
 			// TODO:2015-07-24:lauri:update document.body and document.documentElement
 		}
+
+		el.isConnected = true
+		if (el.connectedCallback) el.connectedCallback()
+
 		return el
 	},
 	removeChild: function(el) {
@@ -167,6 +171,10 @@ var voidElements = {
 
 		node.childNodes.splice(index, 1)
 		el.parentNode = null
+
+		el.isConnected = false
+		if (el.disconnectedCallback) el.disconnectedCallback()
+
 		return el
 	},
 	replaceChild: function(el, ref) {
@@ -196,8 +204,41 @@ var voidElements = {
 		}, "") : ""
 	}
 }
+, elementRegistry = {}        // a map of { name: { ctor, promise } }
+, resolve = Symbol("resolve") // help the resolve become private
+, customElements = {
+	get: function(name) {
+		var entry = elementRegistry[name.toLowerCase()]
+		return entry && entry.ctor
+	},
+	define: function(name, ctor) {
+		if (!name.includes("-")) throw new SyntaxError("not a valid custom element name")
+		if (typeof ctor !== "function") throw new TypeError("not a constructor")
+		name = name.toLowerCase()
+		var entry = elementRegistry[name] || (elementRegistry[name] = {})
+		if (entry.ctor) throw new Error(name + " already defined")
+		entry.ctor = ctor
+		if (entry.promise) entry.promise[resolve](ctor) // if whenDefined was called
+		else entry.promise = Promise.resolve(ctor)      // if just defined
+	},
+	whenDefined: function(name) {
+		name = name.toLowerCase()
+		var entry = elementRegistry[name] || (elementRegistry[name] = {})
+		return entry.promise || (entry.promise = createPromise())
+	}
+}
 
 
+
+// creates a promise that can be resolved outside of this method
+function createPromise() {
+	var localResolve
+	var promise = new Promise(function (resolve) {
+		localResolve = resolve
+	})
+	promise[resolve] = localResolve // will be callable only in this file
+	return promise
+}
 
 function extendNode(obj, extras) {
 	obj.prototype = Object.create(Node)
@@ -280,8 +321,10 @@ function escapeAttributeName(name) {
 
 function HTMLElement(tag) {
 	var element = this
-	element.nodeName = element.tagName = tag.toUpperCase()
-	element.localName = tag.toLowerCase()
+	if (tag) {
+		element.nodeName = element.tagName = tag.toUpperCase()
+		element.localName = tag.toLowerCase()
+	}
 	element.childNodes = []
 }
 
@@ -315,12 +358,18 @@ extendNode(HTMLElement, elementGetters, {
 		return this.hasAttribute(name) ? "" + this[name] : null
 	},
 	setAttribute: function(name, value) {
-		this[escapeAttributeName(name)] = "" + value
+		name = escapeAttributeName(name)
+		var oldValue = this[name]
+		var newValue = "" + value
+		this[name] = newValue
+		attributeChanged(this, name, oldValue, newValue)
 	},
 	removeAttribute: function(name) {
 		name = escapeAttributeName(name)
+		var oldValue = this[name]
 		this[name] = ""
 		delete this[name]
+		attributeChanged(this, name, oldValue, null)
 	},
 	toString: function() {
 		var attrs = this.attributes.join(" ")
@@ -328,6 +377,14 @@ extendNode(HTMLElement, elementGetters, {
 		(voidElements[this.tagName] ? "" : this.innerHTML + "</" + this.localName + ">")
 	}
 })
+
+function attributeChanged(el, name, oldValue, newValue) {
+	if (el.attributeChangedCallback) {
+		var observed = Object.getPrototypeOf(el).constructor.observedAttributes
+		if (observed && observed.includes(name))
+			el.attributeChangedCallback(name, oldValue, newValue)
+	}
+}
 
 function ElementNS(namespace, tag) {
 	var element = this
@@ -394,15 +451,35 @@ function own(Element) {
 	}
 }
 
+function ownElement() {
+	return function(tagName) {
+		var node
+		var CustomElement = customElements.get(tagName)
+		if (CustomElement) {
+			node = new CustomElement()
+			node.nodeName = node.tagName = tagName.toUpperCase()
+			node.localName = tagName.toLowerCase()
+		} else {
+			node = new HTMLElement(tagName)
+		}
+		node.ownerDocument = this
+		return node
+	}
+}
+
 extendNode(Document, elementGetters, {
 	nodeType: 9,
 	nodeName: "#document",
-	createElement: own(HTMLElement),
+	createElement: ownElement(),
 	createElementNS: own(ElementNS),
 	createTextNode: own(Text),
 	createComment: own(Comment),
 	createDocumentType: own(DocumentType), //Should be document.implementation.createDocumentType(name, publicId, systemId)
-	createDocumentFragment: own(DocumentFragment)
+	createDocumentFragment: own(DocumentFragment),
+	contains: function(el) {
+		while ((el = el.parentNode)) if (el === this) return true
+		return false
+	}
 })
 
 module.exports = {
@@ -411,6 +488,7 @@ module.exports = {
 	Node: Node,
 	HTMLElement: HTMLElement,
 	DocumentFragment: DocumentFragment,
-	Document: Document
+	Document: Document,
+	customElements: customElements
 }
 
