@@ -14,6 +14,8 @@ var voidElements = {
 	AREA:1, BASE:1, BR:1, COL:1, EMBED:1, HR:1, IMG:1, INPUT:1,
 	KEYGEN:1, LINK:1, MENUITEM:1, META:1, PARAM:1, SOURCE:1, TRACK:1, WBR:1
 }
+, splice = Array.prototype.splice
+, push = Array.prototype.push
 , selector = require("selector-lite")
 , elementGetters = {
 	getElementById: function(id) {
@@ -37,7 +39,6 @@ var voidElements = {
 	{ name: "as", defVal: "" },
 	{ name: "autofocus", defVal: false },
 	{ name: "checked", defVal: false },
-	{ name: "class", propName: "className", defVal: "" },
 	{ name: "dir", defVal: "" },
 	{ name: "disabled", defVal: false },
 	{ name: "height", defVal: 0 },
@@ -143,6 +144,12 @@ var voidElements = {
 		frag.innerHTML = html
 		this.parentNode.replaceChild(frag, this)
 		return html
+	},
+	get className() {
+		return this.classList.value
+	},
+	set className(value) {
+		this.classList.set(value)
 	},
 	get style() {
 		return this.styleMap || (this.styleMap = new StyleMap())
@@ -277,6 +284,58 @@ function getSibling(node, step) {
 	return silbings && index > -1 && silbings[ index + step ] || null
 }
 
+function ClassList() {}
+
+ClassList.prototype = Object.create(Array.prototype)
+
+Object.assign(ClassList.prototype, {
+	constructor: ClassList,
+	set: function (value) {
+		splice.apply(this, [0, this.length].concat((value || "").match(/\S+/g) || []))
+	},
+	item: function (index) {
+		return this[index]
+	},
+	contains: Array.prototype.includes,
+	add: function () {
+		push.apply(this, arguments)
+	},
+	remove: function () {
+		for (var i = 0, l = arguments.length; i < l; ++i) {
+			var index = this.indexOf(arguments[i])
+			if (index >= 0) this.splice(index, 1)
+		}
+	},
+	toggle: function (className, force) {
+		var index = this.indexOf(className)
+		if (index >= 0) {
+			if (force !== true) {
+				this.splice(index, 1)
+				return false
+			} else {
+				return true
+			}
+		} else {
+			if (force !== false) {
+				this.push(className)
+				return true
+			} else {
+				return false
+			}
+		}
+	},
+	toString: function () {
+		return this.value
+	}
+})
+
+Object.defineProperty(ClassList.prototype, "value", {
+	enumerable: true,
+	get: function () {
+		return this.join(" ")
+	}
+})
+
 
 
 function DocumentFragment() {
@@ -309,6 +368,7 @@ function HTMLElement(tag) {
 	var element = this
 	element.nodeName = element.tagName = tag.toUpperCase()
 	element.localName = tag.toLowerCase()
+	element.classList = new ClassList()
 	element.childNodes = []
 	element.attrObj = {}
 }
@@ -319,6 +379,7 @@ extendNode(HTMLElement, elementGetters, {
 		, attrs = []
 		for (key in this.attrObj) attrs.push(new Attr(this, key))
 		if (this.hasAttribute("style")) attrs.push(new Attr(this, "style"))
+		if (this.hasAttribute("class")) attrs.push(new Attr(this, "class"))
 		return attrs
 	},
 	matches: function(sel) {
@@ -334,25 +395,28 @@ extendNode(HTMLElement, elementGetters, {
 	styleMap: null,
 	hasAttribute: function(name) {
 		name = escapeAttributeName(name)
-		return name != "style" ? name in this.attrObj :
-		!!(this.styleMap && Object.keys(this.styleMap).length)
+		if (name === "style") return !!(this.styleMap && Object.keys(this.styleMap).length)
+		if (name === "class") return !!this.classList.length
+		return name in this.attrObj
 	},
 	getAttribute: function(name) {
 		name = escapeAttributeName(name)
+		if (!this.hasAttribute(name)) return null
 		if (name === "style") return "" + this.style
-		return this.hasAttribute(name) ? "" + this.attrObj[name] : null
+		if (name === "class") return this.className
+		return this.attrObj[name]
 	},
 	setAttribute: function(name, value) {
+		name = escapeAttributeName(name)
 		if (name === "style") this.style = "" + value
-		else this.attrObj[escapeAttributeName(name)] = "" + value
+		else if (name === "class") this.className = "" + value
+		else this.attrObj[name] = "" + value
 	},
 	removeAttribute: function(name) {
-		if (name === "style") {
-			this.style = ""
-		} else {
-			name = escapeAttributeName(name)
-			delete this.attrObj[name]
-		}
+		name = escapeAttributeName(name)
+		if (name === "style") this.style = ""
+		else if (name === "class") this.className = ""
+		else delete this.attrObj[name]
 	},
 	toString: function() {
 		var attrs = this.attributes.join(" ")
@@ -367,6 +431,7 @@ function ElementNS(namespace, tag) {
 	var element = this
 	element.namespaceURI = namespace
 	element.nodeName = element.tagName = element.localName = tag
+	element.classList = new ClassList()
 	element.childNodes = []
 	element.attrObj = {}
 }
