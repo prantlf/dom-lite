@@ -296,6 +296,13 @@ describe("DOM lite", function() {
 		assert.equal(p.lastChild, null)
 	}
 
+	it("has HTMLTemplateElement", function (assert) {
+		var template  = document.createElement("template")
+		assert.equal(template.content, template)
+
+		assert.end()
+	})
+
 	it("has HTMLElement", function (assert) {
 		var div  = document.createElement("div")
 

@@ -272,6 +272,9 @@ var voidElements = {
 		if (index >= 0) eventListeners.splice(index, 1)
 	}
 }
+, builtInElements = {
+	template: HTMLTemplateElement
+}
 
 
 
@@ -574,6 +577,14 @@ extendNode(HTMLElement, elementGetters, EventTarget, {
 
 addElementAttrProps(HTMLElement)
 
+function HTMLTemplateElement() {
+	HTMLElement.call(this, "template")
+	this.content = this // simplification to just access the parsed content
+}
+
+HTMLTemplateElement.prototype = Object.create(HTMLElement.prototype)
+HTMLTemplateElement.prototype.constructor = HTMLTemplateElement
+
 function ElementNS(namespace, tag) {
 	var element = this
 	element.namespaceURI = namespace
@@ -641,10 +652,19 @@ function own(Element) {
 	}
 }
 
+function ownElement() {
+	return function(tagName) {
+		var Element = builtInElements[tagName] || HTMLElement
+		var node = new Element(tagName)
+		node.ownerDocument = this
+		return node
+	}
+}
+
 extendNode(Document, elementGetters, EventTarget, {
 	nodeType: 9,
 	nodeName: "#document",
-	createElement: own(HTMLElement),
+	createElement: ownElement(),
 	createElementNS: own(ElementNS),
 	createTextNode: own(Text),
 	createComment: own(Comment),
@@ -657,6 +677,7 @@ module.exports = {
 	StyleMap: StyleMap,
 	Node: Node,
 	HTMLElement: HTMLElement,
+	HTMLTemplateElement: HTMLTemplateElement,
 	DocumentFragment: DocumentFragment,
 	Document: Document,
 	Event: Event
