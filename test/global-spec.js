@@ -12,6 +12,8 @@ describe("global", function() {
 		assert.equal(global.HTMLElement, localDOM.HTMLElement)
 		assert.equal(global.DocumentFragment, localDOM.DocumentFragment)
 		assert.equal(global.Document, localDOM.Document)
+		assert.equal(global.CSSStyleSheet, localDOM.CSSStyleSheet)
+		assert.equal(global.setDOMFeatures, localDOM.setDOMFeatures)
 
 		assert.end()
 	})

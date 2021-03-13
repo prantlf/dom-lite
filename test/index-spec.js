@@ -4,6 +4,9 @@ describe("DOM lite", function() {
 	var undef
 	, DOM = require("../")
 	, document = DOM.document
+	, Document = DOM.Document
+	, CSSStyleSheet = DOM.CSSStyleSheet
+	, setDOMFeatures = DOM.setDOMFeatures
 	, it = describe.it
 
 	it("can create nodes", function (assert) {
@@ -388,6 +391,53 @@ describe("DOM lite", function() {
 
 		shadow.appendChild(document.createElement("hr"))
 		assert.equal("" + div, "<div><#shadow-root><hr></#shadow-root></div>")
+
+		assert.end()
+	})
+
+	it("has constructible stylesheets", function (assert) {
+		assert.ok(Array.isArray(document.adoptedStyleSheets))
+
+		var otherDocument = new Document()
+		assert.ok(Array.isArray(otherDocument.adoptedStyleSheets))
+
+		var div = document.createElement("div")
+		var shadow = div.attachShadow({ mode: "open" })
+		assert.ok(Array.isArray(shadow.adoptedStyleSheets))
+
+		var css = new CSSStyleSheet()
+		assert.equal(css.toString(), "")
+
+		css.replace("div {}").then(function() {
+			assert.equal(css.toString(), "div {}")
+
+			css.replaceSync("a {}")
+			assert.equal(css.toString(), "a {}")
+
+			assert.end()
+		})
+	})
+
+	it("can disable constructible stylesheets", function (assert) {
+		setDOMFeatures({ constructibleStylesheets: false })
+		assert.equal(typeof document.adoptedStyleSheets, "undefined")
+		setDOMFeatures({ constructibleStylesheets: false })
+		assert.equal(typeof document.adoptedStyleSheets, "undefined")
+
+		var otherDocument = new Document()
+		assert.equal(typeof otherDocument.adoptedStyleSheets, "undefined")
+
+		var div = document.createElement("div")
+		var shadow = div.attachShadow({ mode: "open" })
+		assert.equal(typeof shadow.adoptedStyleSheets, "undefined")
+
+		setDOMFeatures({ constructibleStylesheets: true })
+		assert.ok(Array.isArray(document.adoptedStyleSheets))
+		setDOMFeatures({ constructibleStylesheets: true })
+		assert.ok(Array.isArray(document.adoptedStyleSheets))
+
+		otherDocument = new Document()
+		assert.ok(Array.isArray(otherDocument.adoptedStyleSheets))
 
 		assert.end()
 	})
