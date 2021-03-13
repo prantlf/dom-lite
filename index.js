@@ -16,6 +16,9 @@ var voidElements = {
 }
 , hasOwn = voidElements.hasOwnProperty
 , selector = require("selector-lite")
+, domFeatures = {
+	constructibleStylesheets: true
+}
 , elementGetters = {
 	getElementById: function(id) {
 		return selector.find(this, "#" + id, 1)
@@ -379,6 +382,7 @@ extendNode(DocumentType, {
 })
 
 function Document() {
+	if (domFeatures.constructibleStylesheets) this.adoptedStyleSheets = []
 	this.childNodes = []
 	this.documentElement = this.createElement("html")
 	this.appendChild(this.documentElement)
@@ -405,12 +409,40 @@ extendNode(Document, elementGetters, {
 	createDocumentFragment: own(DocumentFragment)
 })
 
+function CSSStyleSheet() {}
+
+CSSStyleSheet.prototype.replace = function(content) {
+	this.content = content
+	return Promise.resolve()
+}
+
+CSSStyleSheet.prototype.replaceSync = function(content) {
+	this.content = content
+}
+
+CSSStyleSheet.prototype.toString = function() {
+	return this.content || ""
+}
+
+function setDOMFeatures(features) {
+	Object.assign(domFeatures, features)
+	if (domFeatures.constructibleStylesheets) {
+		if (!document.adoptedStyleSheets) document.adoptedStyleSheets = []
+	} else {
+		if (document.adoptedStyleSheets) delete document.adoptedStyleSheets
+	}
+}
+
+var document = new Document()
+
 module.exports = {
-	document: new Document(),
+	document: document,
 	StyleMap: StyleMap,
 	Node: Node,
 	HTMLElement: HTMLElement,
 	DocumentFragment: DocumentFragment,
-	Document: Document
+	Document: Document,
+	CSSStyleSheet: CSSStyleSheet,
+	setDOMFeatures: setDOMFeatures
 }
 
