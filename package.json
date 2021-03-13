@@ -1,24 +1,37 @@
 {
-  "name": "dom-lite",
-  "version": "20.2.0",
-  "license": "MIT",
-  "author": "Lauri Rooden <lauri@rooden.ee>",
-  "description": "A small DOM implementation",
-  "keywords": [
-    "browser",
-    "document",
-    "dom",
-    "litejs"
+  "name": "@prantlf/dom-lite",
+  "version": "21.0.0",
+  "description": "A small DOM implementation.",
+  "author": "Ferdinand Prantl <prantlf@gmail.com> (http://prantl.tk)",
+  "contributors": [
+    "Lauri Rooden <lauri@rooden.ee>"
   ],
+  "license": "MIT",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/prantlf/dom-lite/blob/master/LICENSE"
+    }
+  ],
+  "homepage": "https://github.com/prantlf/dom-lite",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/prantlf/dom-lite"
+  },
+  "bugs": {
+    "url": "http://github.com/prantlf/dom-lite/issues"
+  },
   "main": "index.js",
-  "readmeFilename": "README.md",
+  "engines": {
+    "node": ">=8"
+  },
   "files": [
     "index.js"
   ],
-  "repository": "git://github.com/litejs/dom-lite.git",
-  "bugs": "https://github.com/litejs/dom-lite/issues",
-  "dependencies": {
-    "selector-lite": "20.2.0"
+  "scripts": {
+	"lint": "lj lint",
+	"check": "lj test",
+	"test": "lj lint && c8 lj test"
   },
   "litejs": {
     "lint": "jshint *.js"
@@ -29,7 +42,7 @@
     "maxdepth": 6,
     "quotmark": "double"
   },
-  "nyc": {
+  "c8": {
     "check-coverage": true,
     "branches": 100,
     "lines": 100,
@@ -37,8 +50,22 @@
     "statements": 100,
     "reporter": [
       "lcov",
-      "text",
-      "html"
+      "text-summary"
     ]
-  }
+  },
+  "dependencies": {
+    "selector-lite": "^20.2.0"
+  },
+  "devDependencies": {
+    "@litejs/cli": "^21.3.0",
+    "c8": "^7.6.0",
+    "jshint": "^2.12.0"
+  },
+  "keywords": [
+    "dom",
+    "node",
+    "nodejs",
+    "browser",
+    "document"
+  ]
 }

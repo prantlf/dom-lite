@@ -1,13 +1,10 @@
-# @prantlf/dom-lite
+# Changes
 
-[![NPM version](https://badge.fury.io/js/%40prantlf%2Fdom-lite.svg)](http://badge.fury.io/js/%40prantlf%2Fdom-lite)
-[![Build Status](https://github.com/prantlf/dom-lite/workflows/Test/badge.svg)](https://github.com/prantlf/dom-lite/actions)
-[![Dependency Status](https://david-dm.org/prantlf/dom-lite.svg)](https://david-dm.org/prantlf/dom-lite)
-[![devDependency Status](https://david-dm.org/prantlf/dom-lite/dev-status.svg)](https://david-dm.org/prantlf/dom-lite#info=devDependencies)
+## 21.0.0
 
-A small [DOM] implementation, where most of attributes and methods including [selectors] from elements and document are implemented.
+Add support for testing libraries manipulating DOM (JSX syntax, for example) and for testing [Web Components].
 
-This fork enhances the original project with a support for testing libraries manipulating DOM (JSX syntax, for example) and for testing [Web Components]:
+### Changes
 
 * Add the [`classList`] property.
 * Add the [`Event`] class and the [`EventTarget`] support to `Document` and `Element`.
@@ -20,51 +17,15 @@ This fork enhances the original project with a support for testing libraries man
 * Add the [`content`] property to the `template` element, utilise `HTMLTemplateElement`.
 * Expose a `global` module to set the exported objects to the global namespace.
 
-## Synopsis
+### BREAKING CHANGES
 
-```js
-var document = require("@prantlf/dom-lite").document;
+* The `class` attribute is not rendered in `outerHTML` in the order, which `setAttribute` was called. If a class is set, the `class` attribute is always rendered as the last one. Your tests may need to be adapted for this change.
+* The `style` attribute is not rendered in `outerHTML` in the order, which `setAttribute` was called. If a style is set, the `style` attribute is always rendered as the last one, or before `class`, if a class is set. Your tests may need to be adapted for this change.
+* Setting attributes does not automatically set a property on the element instance. If you depend on this in your tests, you will need to set the property in addition to calling `setAttribite`.
 
-var el = document.createElement("h1");
-el.id = "123";
-el.className = "large";
+This is the first version released after forking the [original project].
 
-var fragment = document.createDocumentFragment();
-var text1 = document.createTextNode("hello");
-var text2 = document.createTextNode(" world");
-
-fragment.appendChild(text1);
-fragment.appendChild(text2);
-el.appendChild(fragment);
-
-el.innerHTML;
-// hello world
-el.innerHTML = "<b>hello world</b>"
-el.outerHTML;
-// <h1 id="123" class="large"><b>hello world</b></h1>
-el.querySelectorAll("b");
-// [ "<b>hello world</b>" ]
-```
-
-## Contributing
-
-In lieu of a [formal styleguide], take care to maintain the existing coding style. Lint and test your code.
-
-How to clone this repository, install development dependencies and run tests:
-
-```sh
-git clone https://github.com/prantlf/dom-lite.git
-cd dom-lite
-pnpm i # you can use npm or yarn too
-npm test
-```
-
-## Licence
-
-Copyright (c) 2014-2021 Lauri Rooden &lt;lauri@rooden.ee&gt;<br>
-Copyright (c) 2021 Ferdinand Prantl &lt;prantlf@gmail.com&gt;
-
-[DOM]: https://dom.spec.whatwg.org/
+[original project]: https://github.com/litejs/dom-lite
 [Web Components]: https://developer.mozilla.org/en-US/docs/Web/Web_Components
 [`classList`]: https://developer.mozilla.org/en-US/docs/Web/API/Element/classList
 [`Event`]: https://developer.mozilla.org/en-US/docs/Web/API/Event/Event
@@ -78,4 +39,3 @@ Copyright (c) 2021 Ferdinand Prantl &lt;prantlf@gmail.com&gt;
 [`adoptedStyleSheets`]: https://wicg.github.io/construct-stylesheets/#using-constructed-stylesheets
 [`CSSStylesheet`]: https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet
 [constructible stylesheets]: https://wicg.github.io/construct-stylesheets/
-[formal styleguide]: https://github.com/litejs/litejs/wiki/Style-Guidelines
