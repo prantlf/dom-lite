@@ -386,11 +386,20 @@ describe("DOM lite", function() {
 		var div = document.createElement("div")
 		var shadow = div.attachShadow({ mode: "open" })
 
+		assert.equal(shadow.nodeType, 11)
+		assert.equal(shadow.nodeName, "#shadow-root")
+		assert.equal(shadow.nodeValue, null)
+		assert.equal((shadow.nodeValue = "value"), "value")
+		assert.equal(shadow.nodeValue, null)
+		assert.equal(shadow.textContent, "")
+
 		assert.equal(shadow, div.shadowRoot)
-		assert.equal("" + div, "<div><#shadow-root></#shadow-root></div>")
+		assert.equal("" + div, "<div></div>")
+		assert.equal("" + shadow, "")
 
 		shadow.appendChild(document.createElement("hr"))
-		assert.equal("" + div, "<div><#shadow-root><hr></#shadow-root></div>")
+		assert.equal("" + div, "<div></div>")
+		assert.equal("" + shadow, "<hr>")
 
 		assert.end()
 	})
