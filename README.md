@@ -1,7 +1,7 @@
 # @prantlf/dom-lite
 
 [![NPM version](https://badge.fury.io/js/%40prantlf%2Fdom-lite.svg)](http://badge.fury.io/js/%40prantlf%2Fdom-lite)
-[![Build Status](https://github.com/prantlf/dom-lite/workflows/Test/badge.svg)](https://github.com/prantlf/dom-lite/actions)
+[![Build Status](https://github.com/prantlf/dom-lite/workflows/test/badge.svg)](https://github.com/prantlf/dom-lite/actions)
 [![Dependency Status](https://david-dm.org/prantlf/dom-lite.svg)](https://david-dm.org/prantlf/dom-lite)
 [![devDependency Status](https://david-dm.org/prantlf/dom-lite/dev-status.svg)](https://david-dm.org/prantlf/dom-lite#info=devDependencies)
 
