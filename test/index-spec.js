@@ -350,6 +350,16 @@ describe("DOM lite", function() {
 		assert.equal(div.getInnerHTML({ includeShadowRoots: true }), "")
 		assert.equal(div.getInnerHTML({ includeShadowRoots: true, closedRoots: [shadow] }), "<template shadowroot=\"closed\"></template>")
 
+		div = document.createElement("div")
+		div.innerHTML = "<div><template shadowroot=\"open\"><hr></template><br></div>"
+		assert.ok(div.firstChild.shadowRoot)
+		assert.equal("" + div.firstChild.shadowRoot, "<hr>")
+		assert.equal(div.firstChild.innerHTML, "<br>")
+
+		div = document.createElement("div")
+		div.innerHTML = "<div><template shadowroot=\"closed\"><hr></template></div>"
+		assert.ok(!div.firstChild.shadowRoot)
+
 		assert.end()
 	})
 })
