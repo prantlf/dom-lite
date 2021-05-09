@@ -63,7 +63,7 @@ var voidElements = {
 ]
 , customContent
 , tagRe = /<(!--([\s\S]*?)--|!\[[\s\S]*?\]|[?!][\s\S]*?)>|<(\/?)([^ \/>]+)([^>]*?)(\/?)>|[^<]+/g
-, attrRe = /([^= ]+)\s*=\s*(?:("|')((?:\\\2|.)*?)\2|(\S+))/g
+, attrRe = /([^= ]+)\s*=\s*(?:("|')((?:\\\2|.)*?)\2|(\S+))|([^= ]+)/g
 , Node = {
 	ELEMENT_NODE:                1,
 	TEXT_NODE:                   3,
@@ -152,8 +152,8 @@ var voidElements = {
 
 		return html
 
-		function setAttr(_, name, q, a, b) {
-			child.setAttribute(name, htmlUnescape(a || b || ""))
+		function setAttr(_, name, q, a, b, c) {
+			child.setAttribute(name || c, htmlUnescape(a || b || ""))
 		}
 	},
 	get outerHTML() {
@@ -629,8 +629,8 @@ function HTMLElement(tag) {
 		element.childNodes = []
 	}
 
-	function setAttr(_, name, q, a, b) {
-		element.setAttribute(name, htmlUnescape(a || b || ""))
+	function setAttr(_, name, q, a, b, c) {
+		element.setAttribute(name || c, htmlUnescape(a || b || ""))
 	}
 }
 

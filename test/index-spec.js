@@ -241,12 +241,13 @@ describe("DOM lite", function() {
 
 		assert.equal(div.innerHTML, "<span>Hello!</span>")
 
-		var str = '<div><span id="1">Hello</span> <span>World!</span></div>'
+		div.innerHTML = '<div><span id="1" disabled>Hello</span> <span>World!</span></div>'
 
-		div.innerHTML = str
-		assert.equal(div.innerHTML, str)
+		assert.equal(div.innerHTML, '<div><span id="1" disabled="">Hello</span> <span>World!</span></div>')
 		assert.equal(div.firstChild.tagName, "DIV")
 		assert.equal(div.firstChild.firstChild.tagName, "SPAN")
+		assert.equal(div.firstChild.firstChild.getAttribute("id"), "1")
+		assert.ok(div.firstChild.firstChild.hasAttribute("disabled"))
 
 		assert.equal(div.querySelectorAll("span").length, 2)
 
@@ -414,8 +415,10 @@ describe("DOM lite", function() {
 		assert.equal(div.getInnerHTML({ includeShadowRoots: true, closedRoots: [shadow] }), "<template shadowroot=\"closed\"></template>")
 
 		div = document.createElement("div")
-		div.innerHTML = "<x-el a=b><template shadowroot=\"open\"><hr></template><br></x-el>"
+		div.innerHTML = "<x-el a=b c=\"d\" e><template shadowroot=\"open\"><hr></template><br></x-el>"
 		assert.equal(div.firstChild.getAttribute("a"), "b")
+		assert.equal(div.firstChild.getAttribute("c"), "d")
+		assert.equal(div.firstChild.getAttribute("e"), "")
 		assert.ok(div.firstChild.shadowRoot)
 		assert.equal("" + div.firstChild.shadowRoot, "<hr>")
 		assert.equal(div.firstChild.innerHTML, "<br>")
