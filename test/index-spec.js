@@ -402,6 +402,7 @@ describe("DOM lite", function() {
 		assert.equal("" + shadow, "")
 
 		shadow.appendChild(document.createElement("hr"))
+		assert.ok(shadow.querySelector("hr"))
 		assert.equal(div.getInnerHTML({ includeShadowRoots: true }), "<template shadowroot=\"open\"><hr></template>")
 		assert.equal("" + div, "<div></div>")
 		assert.equal("" + shadow, "<hr>")
