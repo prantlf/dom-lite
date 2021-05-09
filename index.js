@@ -94,7 +94,7 @@ var voidElements = {
 				if (match[5]) {
 					match[5].replace(attrRe, setAttr)
 				}
-				if (child.localName === 'template' && (mode = child.getAttribute('shadowroot'))) {
+				if (child.localName === "template" && (mode = child.getAttribute("shadowroot"))) {
 					var shadow = node.attachShadow({ mode: mode })
 					if (!match[6]) node = shadow
 				} else {
@@ -199,7 +199,7 @@ var voidElements = {
 		var shadowRoot = new ShadowRoot(opts)
 		shadowRoot.host = this
 		shadowRoot.ownerDocument = this.ownerDocument
-		if (opts && opts.mode === 'open') this.shadowRoot = shadowRoot
+		if (opts && opts.mode === "open") this.shadowRoot = shadowRoot
 		return shadowRoot
 	},
 	getInnerHTML: function (opts) {
@@ -211,7 +211,10 @@ var voidElements = {
 			var shadow = this.shadowRoot
 			if (!shadow) {
 				var closed = opts.closedRoots
-				shadow = closed && closed.find(shadow => shadow.host === this)
+				var el = this
+				shadow = closed && closed.find(function (shadow) {
+					return shadow.host === el
+				})
 			}
 			if (shadow)
 				html += "<template shadowroot=\"" + shadow.mode + "\">" + Node.toString.call(shadow, opts) + "</template>"
