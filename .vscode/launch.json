@@ -11,6 +11,13 @@
       "program": "${workspaceFolder}/node_modules/@litejs/cli/index.js",
       "args": ["test"],
       "skipFiles": ["<node_internals>/**"]
-    }
-  ]
+    },
+    {
+		"name": "debug",
+		"type": "node",
+		"request": "launch",
+		"program": "${workspaceFolder}/test/debug.js",
+		"skipFiles": ["<node_internals>/**"]
+	  }
+	]
 }

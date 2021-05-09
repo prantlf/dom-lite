@@ -1,5 +1,9 @@
 # Changes
 
+## 21.2.5
+
+* Fix the declarative shadow dom support for custom elements.
+
 ## 21.2.4
 
 * Distribute the global module.

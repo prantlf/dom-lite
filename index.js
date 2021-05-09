@@ -61,6 +61,9 @@ var voidElements = {
 	{ name: "value", defVal: "" },
 	{ name: "width", defVal: 0 }
 ]
+, customContent
+, tagRe = /<(!--([\s\S]*?)--|!\[[\s\S]*?\]|[?!][\s\S]*?)>|<(\/?)([^ \/>]+)([^>]*?)(\/?)>|[^<]+/g
+, attrRe = /([^= ]+)\s*=\s*(?:("|')((?:\\\2|.)*?)\2|(\S+))/g
 , Node = {
 	ELEMENT_NODE:                1,
 	TEXT_NODE:                   3,
@@ -106,26 +109,35 @@ var voidElements = {
 		return Node.toString.call(this)
 	},
 	set innerHTML(html) {
-		var match, child, mode
+		var match, child, name
 		, node = this
 		, doc = node.ownerDocument || node
-		, tagRe = /<(!--([\s\S]*?)--|!\[[\s\S]*?\]|[?!][\s\S]*?)>|<(\/?)([^ \/>]+)([^>]*?)(\/?)>|[^<]+/g
-		, attrRe = /([^= ]+)\s*=\s*(?:("|')((?:\\\2|.)*?)\2|(\S+))/g
 
 		for (; node.firstChild; ) node.removeChild(node.firstChild)
 
 		for (; (match = tagRe.exec(html)); ) {
 			if (match[3]) {
-				node = node.parentNode || node.host
-			} else if (match[4]) {
-				child = doc.createElement(match[4])
-				if (match[5]) {
-					match[5].replace(attrRe, setAttr)
-				}
-				if (child.localName === 'template' && (mode = child.getAttribute('shadowroot'))) {
-					var shadow = node.attachShadow({ mode: mode })
-					if (!match[6]) node = shadow
+				if (node.nodeType === 11) {
+					customContent = node
+					child = doc.createElement(node.name)
+					node = node.parent
+					node.appendChild(child)
 				} else {
+					node = node.parentNode
+				}
+			} else if ((name = match[4])) {
+				if (name.includes("-")) {
+					child = doc.createDocumentFragment()
+					child.document = doc
+					child.parent = node
+					child.name = name
+					child.attrs = match[5]
+					node = child
+				} else {
+					child = doc.createElement(match[4])
+					if (match[5]) {
+						match[5].replace(attrRe, setAttr)
+					}
 					node.appendChild(child)
 					if (!voidElements[child.tagName] && !match[6]) node = child
 				}
@@ -229,7 +241,7 @@ var voidElements = {
 		var shadowRoot = new ShadowRoot(opts)
 		shadowRoot.host = this
 		shadowRoot.ownerDocument = this.ownerDocument
-		if (opts && opts.mode === 'open') this.shadowRoot = shadowRoot
+		if (opts && opts.mode === "open") this.shadowRoot = shadowRoot
 		return shadowRoot
 	},
 	getInnerHTML: function (opts) {
@@ -593,14 +605,33 @@ function escapeAttributeName(name) {
 }
 
 function HTMLElement(tag) {
-	var element = this
-	if (tag) {
+	var content, template, mode, shadow
+	, element = this
+	element.classList = new ClassList()
+	element.attrObj = {}
+	if (customContent) {
+		content = customContent
+		customContent = undefined
+		element.nodeName = element.tagName = content.name.toUpperCase()
+		element.localName = content.name.toLowerCase()
+		template = content.firstChild
+		if (template && template.localName === "template" && (mode = template.getAttribute("shadowroot"))) {
+			content.removeChild(template)
+			element.ownerDocument = content.document
+			shadow = element.attachShadow({ mode: mode })
+			shadow.childNodes = template.childNodes
+		}
+		element.childNodes = content.childNodes
+		if (content.attrs) content.attrs.replace(attrRe, setAttr)
+	} else if (tag) {
 		element.nodeName = element.tagName = tag.toUpperCase()
 		element.localName = tag.toLowerCase()
+		element.childNodes = []
 	}
-	element.classList = new ClassList()
-	element.childNodes = []
-	element.attrObj = {}
+
+	function setAttr(_, name, q, a, b) {
+		element.setAttribute(name, htmlUnescape(a || b || ""))
+	}
 }
 
 extendNode(HTMLElement, elementGetters, EventTarget, {
@@ -680,7 +711,7 @@ function HTMLTemplateElement() {
 HTMLTemplateElement.prototype = Object.create(HTMLElement.prototype)
 HTMLTemplateElement.prototype.constructor = HTMLTemplateElement
 
-Object.defineProperty(HTMLTemplateElement.prototype, 'content', {
+Object.defineProperty(HTMLTemplateElement.prototype, "content", {
 	get () {
 		const content = this.ownerDocument.createDocumentFragment()
 		for (const child of this.childNodes) {
