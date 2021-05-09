@@ -13,7 +13,8 @@
   "main": "index.js",
   "readmeFilename": "README.md",
   "files": [
-    "index.js"
+    "index.js",
+    "global.js"
   ],
   "repository": "git://github.com/litejs/dom-lite.git",
   "bugs": "https://github.com/litejs/dom-lite/issues",
