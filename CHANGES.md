@@ -1,5 +1,11 @@
 # Changes
 
+## 21.1.0
+
+* Support closed shadow root.
+* Implement the experimental `getInnerHTML` method.
+* Add the `host` property to shadowRoot.
+
 ## 21.0.0
 
 Add support for testing libraries manipulating DOM (JSX syntax, for example) and for testing [Web Components].
