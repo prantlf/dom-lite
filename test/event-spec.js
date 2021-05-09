@@ -354,6 +354,29 @@ describe("Event", function() {
 	})
 
 
+	test("works with document fragment", function (assert) {
+		var parent = document.createDocumentFragment()
+		var child = document.createElement("div")
+		parent.appendChild(child)
+
+		var triggered = []
+		child.addEventListener('click', function() {
+			triggered.push(1)
+		})
+		parent.addEventListener('click', function() {
+			triggered.push(2)
+		})
+
+		var event = new Event('click', { bubbles: true })
+		child.dispatchEvent(event)
+		assert.equal(triggered.length, 2)
+		assert.equal(triggered[0], 1)
+		assert.equal(triggered[1], 2)
+
+		assert.end()
+	})
+
+
 	test("requires type", function (assert) {
 		try {
 			var event = new Event()
