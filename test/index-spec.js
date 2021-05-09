@@ -327,6 +327,8 @@ describe("DOM lite", function() {
 		var shadow = div.attachShadow({ mode: "open" })
 
 		assert.equal(shadow.nodeType, 11)
+		assert.equal(shadow.host, div)
+		assert.equal(shadow.ownerDocument, div.ownerDocument)
 		assert.equal(shadow.nodeName, "#shadow-root")
 		assert.equal(shadow.nodeValue, null)
 		assert.equal((shadow.nodeValue = "value"), "value")

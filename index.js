@@ -192,6 +192,7 @@ var voidElements = {
 	},
 	attachShadow: function(opts) {
 		var shadowRoot = this.shadowRoot = new ShadowRoot(opts)
+		shadowRoot.host = this
 		shadowRoot.ownerDocument = this.ownerDocument
 		return shadowRoot
 	},
