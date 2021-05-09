@@ -339,11 +339,12 @@ function HTMLTemplateElement() {
 HTMLTemplateElement.prototype = Object.create(HTMLElement.prototype)
 HTMLTemplateElement.prototype.constructor = HTMLTemplateElement
 
-Object.defineProperty(HTMLTemplateElement.prototype, 'content', {
-	get () {
-		const content = this.ownerDocument.createDocumentFragment()
-		for (const child of this.childNodes) {
-			content.appendChild(child.cloneNode(true))
+Object.defineProperty(HTMLTemplateElement.prototype, "content", {
+	get: function () {
+		var content = this.ownerDocument.createDocumentFragment()
+		, children = this.childNodes
+		for (var i = 0, l = children.length; i < l; ++i) {
+			content.appendChild(children[i].cloneNode(true))
 		}
 		return content
 	}
