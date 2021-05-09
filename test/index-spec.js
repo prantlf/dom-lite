@@ -191,12 +191,13 @@ describe("DOM lite", function() {
 
 		assert.equal(div.innerHTML, "<span>Hello!</span>")
 
-		var str = '<div><span id="1">Hello</span> <span>World!</span></div>'
+		div.innerHTML = '<div><span id="1" disabled>Hello</span> <span>World!</span></div>'
 
-		div.innerHTML = str
-		assert.equal(div.innerHTML, str)
+		assert.equal(div.innerHTML, '<div><span id="1" disabled="">Hello</span> <span>World!</span></div>')
 		assert.equal(div.firstChild.tagName, "DIV")
 		assert.equal(div.firstChild.firstChild.tagName, "SPAN")
+		assert.equal(div.firstChild.firstChild.getAttribute("id"), "1")
+		assert.ok(div.firstChild.firstChild.hasAttribute("disabled"))
 
 		assert.equal(div.querySelectorAll("span").length, 2)
 

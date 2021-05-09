@@ -82,7 +82,7 @@ var voidElements = {
 		, node = this
 		, doc = node.ownerDocument || node
 		, tagRe = /<(!--([\s\S]*?)--|!\[[\s\S]*?\]|[?!][\s\S]*?)>|<(\/?)([^ \/>]+)([^>]*?)(\/?)>|[^<]+/g
-		, attrRe = /([^= ]+)\s*=\s*(?:("|')((?:\\\2|.)*?)\2|(\S+))/g
+		, attrRe = /([^= ]+)\s*=\s*(?:("|')((?:\\\2|.)*?)\2|(\S+))|([^= ]+)/g
 
 		for (; node.firstChild; ) node.removeChild(node.firstChild)
 
@@ -107,8 +107,8 @@ var voidElements = {
 
 		return html
 
-		function setAttr(_, name, q, a, b) {
-			child.setAttribute(name, htmlUnescape(a || b || ""))
+		function setAttr(_, name, q, a, b, c) {
+			child.setAttribute(name || c, htmlUnescape(a || b || ""))
 		}
 	},
 	get outerHTML() {
