@@ -20,6 +20,7 @@ This fork enhances the original project with a support for testing libraries man
 * Add the method `setDOMFeatures` to disable or enable features like the [constructible stylesheets].
 * Add the [`customElements`] object together with life-cycle members `connectedCallback`, `disconnectedCallback`, `observedAttributes` and `attributeChangedCallback`.
 * Add the [`content`] property to the `template` element, utilise `HTMLTemplateElement`.
+* Make [`DocumentFragment`] an [`EventTarget`] and including element getters.
 * Expose a `global` module to set the exported objects to the global namespace.
 
 ## Synopsis
@@ -71,6 +72,7 @@ Copyright (c) 2021 Ferdinand Prantl &lt;prantlf@gmail.com&gt;
 [`classList`]: https://developer.mozilla.org/en-US/docs/Web/API/Element/classList
 [`Event`]: https://developer.mozilla.org/en-US/docs/Web/API/Event/Event
 [`EventTarget`]: https://developer.mozilla.org/en-US/docs/Web/API/EventTarget
+[`DocumentFragment`]: https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment
 [`customElements`]: https://developer.mozilla.org/en-US/docs/Web/API/Window/customElements
 [`setAttributeNS`]: https://developer.mozilla.org/en-US/docs/Web/API/Element/setAttributeNS
 [`attachShadow`]: https://developer.mozilla.org/en-US/docs/Web/API/Element/attachShadow

@@ -1,5 +1,12 @@
 # Changes
 
+## 21.2.2
+
+* Make document fragment an event target.
+* Make shadow dom an event target.
+* Add element getters to document fragment.
+* Add element getters to shadow dom.
+
 ## 21.2.1
 
 * Fix template element content.
