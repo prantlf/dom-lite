@@ -191,9 +191,10 @@ var voidElements = {
 		return clone
 	},
 	attachShadow: function(opts) {
-		var shadowRoot = this.shadowRoot = new ShadowRoot(opts)
+		var shadowRoot = new ShadowRoot(opts)
 		shadowRoot.host = this
 		shadowRoot.ownerDocument = this.ownerDocument
+		if (opts && opts.mode === 'open') this.shadowRoot = shadowRoot
 		return shadowRoot
 	},
 	getInnerHTML: function (opts) {
@@ -203,6 +204,10 @@ var voidElements = {
 		var html = ""
 		if (opts && opts.includeShadowRoots) {
 			var shadow = this.shadowRoot
+			if (!shadow) {
+				var closed = opts.closedRoots
+				shadow = closed && closed.find(shadow => shadow.host === this)
+			}
 			if (shadow)
 				html += "<template shadowroot=\"" + shadow.mode + "\">" + Node.toString.call(shadow, opts) + "</template>"
 		}
