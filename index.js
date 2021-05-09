@@ -106,7 +106,7 @@ var voidElements = {
 		return Node.toString.call(this)
 	},
 	set innerHTML(html) {
-		var match, child
+		var match, child, mode
 		, node = this
 		, doc = node.ownerDocument || node
 		, tagRe = /<(!--([\s\S]*?)--|!\[[\s\S]*?\]|[?!][\s\S]*?)>|<(\/?)([^ \/>]+)([^>]*?)(\/?)>|[^<]+/g
@@ -116,14 +116,19 @@ var voidElements = {
 
 		for (; (match = tagRe.exec(html)); ) {
 			if (match[3]) {
-				node = node.parentNode
+				node = node.parentNode || node.host
 			} else if (match[4]) {
 				child = doc.createElement(match[4])
 				if (match[5]) {
 					match[5].replace(attrRe, setAttr)
 				}
-				node.appendChild(child)
-				if (!voidElements[child.tagName] && !match[6]) node = child
+				if (child.localName === 'template' && (mode = child.getAttribute('shadowroot'))) {
+					var shadow = node.attachShadow({ mode: mode })
+					if (!match[6]) node = shadow
+				} else {
+					node.appendChild(child)
+					if (!voidElements[child.tagName] && !match[6]) node = child
+				}
 			} else if (match[2]) {
 				node.appendChild(doc.createComment(htmlUnescape(match[2])))
 			} else if (match[1]) {
