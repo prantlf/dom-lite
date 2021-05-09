@@ -570,7 +570,7 @@ function ShadowRoot(opts) {
 	this.childNodes = []
 }
 
-extendNode(ShadowRoot, elementGetters, {
+extendNode(ShadowRoot, elementGetters, EventTarget, {
 	nodeType: 11,
 	nodeName: "#shadow-root"
 })
