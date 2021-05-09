@@ -1,5 +1,9 @@
 # Changes
 
+## 21.2.1
+
+* Fix template element content.
+
 ## 21.2.0
 
 * Support the declarative Shadom DOM.
