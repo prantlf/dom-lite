@@ -675,11 +675,20 @@ function attributeChanged(el, name, oldValue, newValue) {
 
 function HTMLTemplateElement() {
 	HTMLElement.call(this, "template")
-	this.content = this // simplification to just access the parsed content
 }
 
 HTMLTemplateElement.prototype = Object.create(HTMLElement.prototype)
 HTMLTemplateElement.prototype.constructor = HTMLTemplateElement
+
+Object.defineProperty(HTMLTemplateElement.prototype, 'content', {
+	get () {
+		const content = this.ownerDocument.createDocumentFragment()
+		for (const child of this.childNodes) {
+			content.appendChild(child.cloneNode(true))
+		}
+		return content
+	}
+})
 
 function ElementNS(namespace, tag) {
 	var element = this
