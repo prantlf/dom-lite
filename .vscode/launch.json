@@ -8,18 +8,9 @@
       "name": "test",
       "type": "node",
       "request": "launch",
-      "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}/node_modules/@litejs/cli/index.js",
       "args": ["test"],
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "name": "debug",
-      "type": "node",
-      "request": "launch",
-      "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/test/debug.js",
-      "cwd": "${workspaceFolder}"
+      "skipFiles": ["<node_internals>/**"]
     }
   ]
 }

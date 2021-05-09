@@ -14,6 +14,8 @@ This fork enhances the original project with a support for testing libraries man
 * Add the [`setAttributeNS`] method.
 * Isolate the storage for attributes from the element instance to allow reflecting properties to attributes using getters and setters and inherit default values from ancestor element classes.
 * Add the [`attachShadow`] method and the [`ShadowRoot`] class for the [Shadow DOM] capability.
+* Support the [declarative Shadom DOM].
+* Add the experimental [`getInnerHTML`] method for Shadow DOM serialisation.
 * Add the [`adoptedStyleSheets`] method and the [`CSSStylesheet`] class to support [constructible stylesheets].
 * Add the method `setDOMFeatures` to disable or enable features like the [constructible stylesheets].
 * Add the [`customElements`] object together with life-cycle members `connectedCallback`, `disconnectedCallback`, `observedAttributes` and `attributeChangedCallback`.
@@ -74,6 +76,8 @@ Copyright (c) 2021 Ferdinand Prantl &lt;prantlf@gmail.com&gt;
 [`attachShadow`]: https://developer.mozilla.org/en-US/docs/Web/API/Element/attachShadow
 [`ShadowRoot`]: https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot
 [Shadow DOM]: https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_shadow_DOM
+[declarative Shadom DOM]: https://web.dev/declarative-shadow-dom/#building
+[`getInnerHTML`]: https://web.dev/declarative-shadow-dom/#serialization
 [`content`]: https://developer.mozilla.org/en-US/docs/Web/API/HTMLTemplateElement/content
 [`adoptedStyleSheets`]: https://wicg.github.io/construct-stylesheets/#using-constructed-stylesheets
 [`CSSStylesheet`]: https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet
