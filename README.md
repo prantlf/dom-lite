@@ -9,6 +9,7 @@ A small [DOM] implementation, where most of attributes and methods including [se
 
 This fork enhances the original project with a support for testing libraries manipulating DOM (JSX syntax, for example) and for testing [Web Components]:
 
+* Recognise attributes without the equal sign. Assign an empty string as their value.
 * Add the [`classList`] property.
 * Add the [`Event`] class and the [`EventTarget`] support to `Document` and `Element`.
 * Add the [`setAttributeNS`] method.
