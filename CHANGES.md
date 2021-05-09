@@ -1,5 +1,9 @@
 # Changes
 
+## 21.2.3
+
+* Add the rest of the exports to global
+
 ## 21.2.2
 
 * Make document fragment an event target.
