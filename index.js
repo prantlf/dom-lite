@@ -558,7 +558,7 @@ function DocumentFragment() {
 	this.childNodes = []
 }
 
-extendNode(DocumentFragment, {
+extendNode(DocumentFragment, EventTarget, {
 	nodeType: 11,
 	nodeName: "#document-fragment"
 })
