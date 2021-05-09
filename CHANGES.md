@@ -1,5 +1,9 @@
 # Changes
 
+## 21.2.4
+
+* Distribute the global module.
+
 ## 21.2.3
 
 * Add the rest of the exports to global
