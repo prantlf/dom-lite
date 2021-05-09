@@ -387,6 +387,8 @@ describe("DOM lite", function() {
 		var shadow = div.attachShadow({ mode: "open" })
 
 		assert.equal(shadow.nodeType, 11)
+		assert.equal(shadow.host, div)
+		assert.equal(shadow.ownerDocument, div.ownerDocument)
 		assert.equal(shadow.nodeName, "#shadow-root")
 		assert.equal(shadow.nodeValue, null)
 		assert.equal((shadow.nodeValue = "value"), "value")
@@ -394,12 +396,19 @@ describe("DOM lite", function() {
 		assert.equal(shadow.textContent, "")
 
 		assert.equal(shadow, div.shadowRoot)
+		assert.equal(div.getInnerHTML({ includeShadowRoots: true }), "<template shadowroot=\"open\"></template>")
 		assert.equal("" + div, "<div></div>")
 		assert.equal("" + shadow, "")
 
 		shadow.appendChild(document.createElement("hr"))
+		assert.equal(div.getInnerHTML({ includeShadowRoots: true }), "<template shadowroot=\"open\"><hr></template>")
 		assert.equal("" + div, "<div></div>")
 		assert.equal("" + shadow, "<hr>")
+
+		div = document.createElement("div")
+		shadow = div.attachShadow({ mode: "closed" })
+		assert.equal(div.getInnerHTML({ includeShadowRoots: true }), "")
+		assert.equal(div.getInnerHTML({ includeShadowRoots: true, closedRoots: [shadow] }), "<template shadowroot=\"closed\"></template>")
 
 		assert.end()
 	})

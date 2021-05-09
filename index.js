@@ -221,14 +221,29 @@ var voidElements = {
 		return clone
 	},
 	attachShadow: function(opts) {
-		var shadowRoot = this.shadowRoot = new ShadowRoot(opts)
+		var shadowRoot = new ShadowRoot(opts)
+		shadowRoot.host = this
 		shadowRoot.ownerDocument = this.ownerDocument
+		if (opts && opts.mode === 'open') this.shadowRoot = shadowRoot
 		return shadowRoot
 	},
-	toString: function() {
+	getInnerHTML: function (opts) {
+		return Node.toString.call(this, opts)
+	},
+	toString: function(opts) {
+		var html = ""
+		if (opts && opts.includeShadowRoots) {
+			var shadow = this.shadowRoot
+			if (!shadow) {
+				var closed = opts.closedRoots
+				shadow = closed && closed.find(shadow => shadow.host === this)
+			}
+			if (shadow)
+				html += "<template shadowroot=\"" + shadow.mode + "\">" + Node.toString.call(shadow, opts) + "</template>"
+		}
 		return this.hasChildNodes() ? this.childNodes.reduce(function(memo, node) {
-			return memo + node
-		}, "") : ""
+			return memo + node.toString(opts)
+		}, html) : html
 	}
 }
 , EventTarget = {
@@ -636,10 +651,10 @@ extendNode(HTMLElement, elementGetters, EventTarget, {
 		else delete this.attrObj[name]
 		attributeChanged(this, name, oldValue, null)
 	},
-	toString: function() {
+	toString: function(opts) {
 		var attrs = this.attributes.join(" ")
 		return "<" + this.localName + (attrs ? " " + attrs : "") + ">" +
-		(voidElements[this.tagName] ? "" : this.innerHTML + "</" + this.localName + ">")
+		(voidElements[this.tagName] ? "" : this.getInnerHTML(opts) + "</" + this.localName + ">")
 	}
 })
 
