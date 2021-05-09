@@ -253,7 +253,10 @@ var voidElements = {
 			var shadow = this.shadowRoot
 			if (!shadow) {
 				var closed = opts.closedRoots
-				shadow = closed && closed.find(shadow => shadow.host === this)
+				var el = this
+				shadow = closed && closed.find(function (shadow) {
+					return shadow.host === el
+				})
 			}
 			if (shadow)
 				html += "<template shadowroot=\"" + shadow.mode + "\">" + Node.toString.call(shadow, opts) + "</template>"
