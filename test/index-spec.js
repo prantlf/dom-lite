@@ -251,7 +251,8 @@ describe("DOM lite", function() {
 
 	it("has HTMLTemplateElement", function (assert) {
 		var template  = document.createElement("template")
-		assert.equal(template.content, template)
+		template.innerHTML = "<p>Hello</p><br>"
+		assert.equal("" + template.content, "<p>Hello</p><br>")
 
 		assert.end()
 	})
