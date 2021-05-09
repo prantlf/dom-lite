@@ -1,6 +1,6 @@
 {
   "name": "@prantlf/dom-lite",
-  "version": "21.0.0",
+  "version": "21.1.0",
   "description": "A small DOM implementation.",
   "author": "Ferdinand Prantl <prantlf@gmail.com> (http://prantl.tk)",
   "contributors": [
@@ -29,9 +29,9 @@
     "index.js"
   ],
   "scripts": {
-	"lint": "lj lint",
-	"check": "lj test",
-	"test": "lj lint && c8 lj test"
+    "lint": "lj lint",
+    "check": "lj test",
+    "test": "lj lint && c8 lj test"
   },
   "litejs": {
     "lint": "jshint *.js"
