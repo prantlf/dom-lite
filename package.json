@@ -26,7 +26,8 @@
     "node": ">=8"
   },
   "files": [
-    "index.js"
+    "index.js",
+    "global.js"
   ],
   "scripts": {
     "lint": "lj lint",
