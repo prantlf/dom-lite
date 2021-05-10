@@ -626,9 +626,11 @@ function HTMLElement(tag) {
 		}
 		element.childNodes = content.childNodes
 		if (content.attrs) content.attrs.replace(attrRe, setAttr)
-	} else if (tag) {
-		element.nodeName = element.tagName = tag.toUpperCase()
-		element.localName = tag.toLowerCase()
+	} else {
+		if (tag) {
+			element.nodeName = element.tagName = tag.toUpperCase()
+			element.localName = tag.toLowerCase()
+		}
 		element.childNodes = []
 	}
 

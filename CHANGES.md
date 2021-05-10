@@ -1,5 +1,9 @@
 # Changes
 
+## 21.2.7
+
+* Fix the declarative shadow dom support for custom elements II.
+
 ## 21.2.6
 
 * Recognise attributes without the equal sign.
