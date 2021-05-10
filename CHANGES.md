@@ -1,5 +1,9 @@
 # Changes
 
+## 21.2.8
+
+* Fix accessing ownerDocument in a custom element constructor.
+
 ## 21.2.7
 
 * Fix the declarative shadow dom support for custom elements II.

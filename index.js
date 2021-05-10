@@ -61,8 +61,8 @@ var voidElements = {
 	{ name: "value", defVal: "" },
 	{ name: "width", defVal: 0 }
 ]
+, customDocument
 , customContent
-, tagRe = /<(!--([\s\S]*?)--|!\[[\s\S]*?\]|[?!][\s\S]*?)>|<(\/?)([^ \/>]+)([^>]*?)(\/?)>|[^<]+/g
 , attrRe = /([^= ]+)\s*=\s*(?:("|')((?:\\\2|.)*?)\2|(\S+))|([^= ]+)/g
 , Node = {
 	ELEMENT_NODE:                1,
@@ -112,6 +112,7 @@ var voidElements = {
 		var match, child, name
 		, node = this
 		, doc = node.ownerDocument || node
+		, tagRe = /<(!--([\s\S]*?)--|!\[[\s\S]*?\]|[?!][\s\S]*?)>|<(\/?)([^ \/>]+)([^>]*?)(\/?)>|[^<]+/g
 
 		for (; node.firstChild; ) node.removeChild(node.firstChild)
 
@@ -612,6 +613,10 @@ function HTMLElement(tag) {
 	, element = this
 	element.classList = new ClassList()
 	element.attrObj = {}
+	if (customDocument) {
+		element.ownerDocument = customDocument
+		customDocument = undefined
+	}
 	if (customContent) {
 		content = customContent
 		customContent = undefined
@@ -620,7 +625,6 @@ function HTMLElement(tag) {
 		template = content.firstChild
 		if (template && template.localName === "template" && (mode = template.getAttribute("shadowroot"))) {
 			content.removeChild(template)
-			element.ownerDocument = content.document
 			shadow = element.attachShadow({ mode: mode })
 			shadow.childNodes = template.childNodes
 		}
@@ -799,6 +803,7 @@ function ownElement() {
 	return function(tagName) {
 		var node
 		var CustomElement = customElements.get(tagName)
+		customDocument = this
 		if (CustomElement) {
 			node = new CustomElement()
 			node.nodeName = node.tagName = tagName.toUpperCase()
@@ -807,7 +812,6 @@ function ownElement() {
 			var Element = builtInElements[tagName] || HTMLElement
 			node = new Element(tagName)
 		}
-		node.ownerDocument = this
 		return node
 	}
 }
