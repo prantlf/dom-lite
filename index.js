@@ -322,6 +322,12 @@ extendNode(HTMLElement, elementGetters, {
 		this[name] = ""
 		delete this[name]
 	},
+	focus: function() {
+		this.ownerDocument.activeElement = this
+	},
+	blur: function() {
+		this.ownerDocument.activeElement = null
+	},
 	toString: function() {
 		var attrs = this.attributes.join(" ")
 		return "<" + this.localName + (attrs ? " " + attrs : "") + ">" +
