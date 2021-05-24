@@ -1,5 +1,9 @@
 # Changes
 
+## 21.3.0
+
+* Support focus and blur methods, maintain document.activeElement.
+
 ## 21.2.8
 
 * Fix accessing ownerDocument in a custom element constructor.
