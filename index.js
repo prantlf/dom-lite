@@ -696,6 +696,12 @@ extendNode(HTMLElement, elementGetters, EventTarget, {
 		else delete this.attrObj[name]
 		attributeChanged(this, name, oldValue, null)
 	},
+	focus: function() {
+		this.ownerDocument.activeElement = this
+	},
+	blur: function() {
+		this.ownerDocument.activeElement = null
+	},
 	toString: function(opts) {
 		var attrs = this.attributes.join(" ")
 		return "<" + this.localName + (attrs ? " " + attrs : "") + ">" +
