@@ -1,6 +1,6 @@
 {
   "name": "@prantlf/dom-lite",
-  "version": "21.2.8",
+  "version": "21.3.0",
   "description": "A small DOM implementation.",
   "author": "Ferdinand Prantl <prantlf@gmail.com> (http://prantl.tk)",
   "contributors": [
