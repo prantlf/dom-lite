@@ -66,7 +66,7 @@ npm test
 ## Licence
 
 Copyright (c) 2014-2021 Lauri Rooden &lt;lauri@rooden.ee&gt;<br>
-Copyright (c) 2021 Ferdinand Prantl &lt;prantlf@gmail.com&gt;
+Copyright (c) 2021-2024 Ferdinand Prantl &lt;prantlf@gmail.com&gt;
 
 [DOM]: https://dom.spec.whatwg.org/
 [Web Components]: https://developer.mozilla.org/en-US/docs/Web/Web_Components

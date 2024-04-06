@@ -1,55 +1,55 @@
 # Changes
 
-## 21.3.0
+## 21.3.0 (2021-05-25)
 
 * Support focus and blur methods, maintain document.activeElement.
 
-## 21.2.8
+## 21.2.8 (2021-05-10)
 
 * Fix accessing ownerDocument in a custom element constructor.
 
-## 21.2.7
+## 21.2.7 (2021-05-10)
 
 * Fix the declarative shadow dom support for custom elements II.
 
-## 21.2.6
+## 21.2.6 (2021-05-09)
 
 * Recognise attributes without the equal sign.
 
-## 21.2.5
+## 21.2.5 (2021-05-09)
 
 * Fix the declarative shadow dom support for custom elements.
 
-## 21.2.4
+## 21.2.4 (2021-05-09)
 
 * Distribute the global module.
 
-## 21.2.3
+## 21.2.3 (2021-05-09)
 
 * Add the rest of the exports to global
 
-## 21.2.2
+## 21.2.2 (2021-05-09)
 
 * Make document fragment an event target.
 * Make shadow dom an event target.
 * Add element getters to document fragment.
 * Add element getters to shadow dom.
 
-## 21.2.1
+## 21.2.1 (2021-05-09)
 
 * Fix template element content.
 
-## 21.2.0
+## 21.2.0 (2021-05-09)
 
 * Support the declarative Shadom DOM.
 
-## 21.1.0
+## 21.1.0 (2021-05-09)
 
 * Support closed shadow root.
 * Implement the experimental `getInnerHTML` method.
 * Add the `host` property to shadowRoot.
 
-## 21.0.0
+## 21.0.0 (2021-05-08)
 
 Add support for testing libraries manipulating DOM (JSX syntax, for example) and for testing [Web Components].
 
